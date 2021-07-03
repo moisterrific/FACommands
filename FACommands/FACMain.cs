@@ -8,6 +8,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Terraria.DataStructures;
 using TShockAPI.Hooks;
+using Terraria.ID;
 
 namespace FACommands
 {
@@ -184,10 +185,10 @@ namespace FACommands
             {
                 HelpText = "Lists detailed information about players."
             });
-            Commands.ChatCommands.Add(new Command("facommands.staff", FacBI, "binfo")
-            {
-                HelpText = "Lists detailed information about banned players."
-            });
+            //Commands.ChatCommands.Add(new Command("facommands.staff", FacBI, "binfo")
+            //{
+            //    HelpText = "Lists detailed information about banned players."
+            //});
             Commands.ChatCommands.Add(new Command("facommands.fun", FacDice, "diceroll", "dr")
             {
                 HelpText = "Roll a Dice! As a parameter you can set rage!"
@@ -249,6 +250,7 @@ namespace FACommands
 
         private void FacRanklist(CommandArgs args) => args.Player.SendInfoMessage($"Available ranks listed from lowest to highest: {string.Join(" ", _config.RankList)}");
 
+        #region More
         private void FacMore(CommandArgs args)
         {
             var play = _playerList[args.Player.UUID];
@@ -287,24 +289,29 @@ namespace FACommands
             if (!args.Player.Group.HasPermission("facommands.nocd"))
                 play.SetCooldown("more", _config.MoreCooldown);
         }
+        #endregion
 
+        #region NPC
         private void FacNpc(CommandArgs args)
         {
             var killedAmount = 0;
             for (var i = 0; i < Main.npc.Length; ++i)
             {
                 if (!Main.npc[i].townNPC) continue;
-                TSPlayer.Server.StrikeNPC(i, 99999, 0.0f, 0);
+                TSPlayer.Server.StrikeNPC(i, (int)(Main.npc[i].life + (Main.npc[i].defense * 0.6)), 0, 0);
                 ++killedAmount;
             }
-            TSPlayer.All.SendInfoMessage($"{args.Player.Name} killed {killedAmount} friendly NPCs and spawned all town NPCs.");
-
+            if (!args.Silent)
+            {
+                TSPlayer.All.SendInfoMessage($"{args.Player.Name} killed {killedAmount} friendly NPCs and spawned all town NPCs.");
+            }
             foreach (var id in _config.NpcList)
             {
                 var npc = TShock.Utils.GetNPCById(id);
                 TSPlayer.Server.SpawnNPC(npc.type, npc.FullName, 1, args.Player.TileX, args.Player.TileY, 20, 20);
             }
         }
+        #endregion
 
         private void FacOwnerBroadcast(CommandArgs args) => TShock.Utils.Broadcast($"{_config.OwnerBroadcastPrefix} {string.Join(" ", args.Parameters)}", _config.OwnerBroadcastColor.ConvertToColor());
 
@@ -512,6 +519,7 @@ namespace FACommands
                 play.SetCooldown("slapall", _config.SlapAllCooldown);
         }
 
+        #region Gift
         private void FacGift(CommandArgs args)
         {
             if (!FirstCheck(args, "gift", new []{"<player>"}, _config.GiftCooldown, c => c != 1))
@@ -521,14 +529,14 @@ namespace FACommands
             var seriouslyRealGender = target.TPlayer.Male ? "boy" : "girl";
             if (_random.Next(2) == 0)
             {
-                var itemById = TShock.Utils.GetItemById(1922);
+                var itemById = TShock.Utils.GetItemById(ItemID.Coal);
                 target.GiveItem(itemById.type, itemById.maxStack, itemById.prefix);
                 target.SendInfoMessage($"{args.Player.Name} gave you Coal! You were a naughty {seriouslyRealGender}...");
                 args.Player.SendSuccessMessage($"You gave {target.Name} Coal! {target.Name} was a naughty {seriouslyRealGender}...");
             }
             else
             {
-                var itemById = TShock.Utils.GetItemById(1869);
+                var itemById = TShock.Utils.GetItemById(ItemID.Present);
                 target.GiveItem(itemById.type, 1, itemById.prefix);
                 target.SendInfoMessage($"{args.Player.Name} gave you a Present! You were a good {seriouslyRealGender}...");
                 args.Player.SendSuccessMessage($"You gave {target.Name} a Present! {target.Name} was a good {seriouslyRealGender}...");
@@ -536,6 +544,7 @@ namespace FACommands
                     _playerList[args.Player.UUID].SetCooldown("gift", _config.GiftCooldown);
             }
         }
+        #endregion
 
         private void FacDisturb(CommandArgs args)
         {
@@ -586,26 +595,28 @@ namespace FACommands
             args.Player.SendErrorMessage("Syntax: /uinfo <player>");
         }
 
-        private void FacBI(CommandArgs args)
-        {
-            if (args.Parameters.Count == 0)
-            {
-                args.Player.SendErrorMessage("Invalid syntax: /baninfo <player>");
-                return;
-            }
-            var banByName = TShock.Bans.GetBanByName(args.Parameters[0]);
-            if (banByName == null)
-            {
-                args.Player.SendErrorMessage("No bans by this name were found.");
-                return;
-            }
-            args.Player.SendInfoMessage($"Account name: {banByName.Name} ({banByName.IP})");
-            args.Player.SendInfoMessage($"Date banned: {banByName.Date}");
-            if (banByName.Expiration != "")
-                args.Player.SendInfoMessage($"Expiration date: {banByName.Expiration}");
-            args.Player.SendInfoMessage($"Banning user: {banByName.BanningUser}");
-            args.Player.SendInfoMessage($"Reason: {banByName.Reason}");
-        }
+        #region Ban Info
+        //private void FacBI(CommandArgs args)
+        //{
+        //    if (args.Parameters.Count == 0)
+        //    {
+        //        args.Player.SendErrorMessage("Invalid syntax: /baninfo <player>");
+        //        return;
+        //    }
+        //    var banByName = TShock.Bans.GetBanByName(args.Parameters[0]);
+        //    if (banByName == null)
+        //    {
+        //        args.Player.SendErrorMessage("No bans by this name were found.");
+        //        return;
+        //    }
+        //    args.Player.SendInfoMessage($"Account name: {banByName.Name} ({banByName.IP})");
+        //    args.Player.SendInfoMessage($"Date banned: {banByName.Date}");
+        //    if (banByName.Expiration != "")
+        //        args.Player.SendInfoMessage($"Expiration date: {banByName.Expiration}");
+        //    args.Player.SendInfoMessage($"Banning user: {banByName.BanningUser}");
+        //    args.Player.SendInfoMessage($"Reason: {banByName.Reason}");
+        //}
+        #endregion
 
         private bool FindPlayer(string param, TSPlayer issuer, out TSPlayer player)
         {
@@ -616,7 +627,7 @@ namespace FACommands
                 if (players.Length > 1)
                     issuer.SendMultipleMatchError(players.Select(p => p.Name));
                 else
-                    issuer.SendErrorMessage("No players matched!");
+                    issuer.SendErrorMessage("No players found!");
                 return false;
             }
             player = players[0];
