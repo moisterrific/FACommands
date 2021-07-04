@@ -195,6 +195,7 @@ namespace FACommands
             });
         }
 
+        #region Dice
         private void FacDice(CommandArgs args)
         {
             int min = _config.MinRollDice, max = _config.MaxRollDice;
@@ -223,6 +224,9 @@ namespace FACommands
             args.Player.SendInfoMessage($"You have rolled: {roll}");
             TSPlayer.All.SendData(PacketTypes.CreateCombatText, "", (int)new Color(112, 218, 255).PackedValue, args.TPlayer.position.X, args.TPlayer.position.Y + 32, roll);
         }
+        #endregion
+
+        #region Bank Balance
         private void FacBb(CommandArgs args)
         {
             var play = _playerList[args.Player.UUID];
@@ -235,6 +239,7 @@ namespace FACommands
             if (!args.Player.Group.HasPermission("facommands.nocd"))
                 play.SetCooldown("bb", _config.BankCooldown);
         }
+        #endregion
 
         private void FacHistory(CommandArgs args) => Commands.HandleCommand(args.Player, "/history");
 
@@ -315,6 +320,7 @@ namespace FACommands
 
         private void FacOwnerBroadcast(CommandArgs args) => TShock.Utils.Broadcast($"{_config.OwnerBroadcastPrefix} {string.Join(" ", args.Parameters)}", _config.OwnerBroadcastColor.ConvertToColor());
 
+        #region Slay
         private void FacSlay(CommandArgs args)
         {
             if (!FirstCheck(args, "slay", new []{"<player>", "<reason>"}, _config.SlayCooldown, c => c < 2))
@@ -326,7 +332,9 @@ namespace FACommands
             if (!args.Player.Group.HasPermission("facommands.nocd"))
                 _playerList[args.Player.UUID].SetCooldown("slay", _config.SlayCooldown);
         }
+        #endregion
 
+        #region Fart
         private void FacFart(CommandArgs args)
         {
             if (!FirstCheck(args, "fart", new []{"<player>"}, _config.FartCooldown, c => c != 1))
@@ -346,7 +354,9 @@ namespace FACommands
                     _playerList[args.Player.UUID].SetCooldown("fart", _config.FartCooldown);
             }
         }
+        #endregion
 
+        #region Tickle
         private void FacTickle(CommandArgs args)
         {
             if (!FirstCheck(args, "tickle",new []{"<player>"}, _config.TickleCooldown, c => c != 1))
@@ -360,7 +370,9 @@ namespace FACommands
             if (!args.Player.Group.HasPermission("facommands.nocd"))
                 _playerList[args.Player.UUID].SetCooldown("tickle", _config.TickleCooldown);
         }
+        #endregion
 
+        #region Poke
         private void FacPoke(CommandArgs args)
         {
             if (!FirstCheck(args, "poke", new []{"<player>"}, _config.PokeCooldown, c => c != 1))
@@ -374,7 +386,9 @@ namespace FACommands
             if (!args.Player.Group.HasPermission("facommands.nocd"))
                 _playerList[args.Player.UUID].SetCooldown("poke", _config.PokeCooldown);
         }
+        #endregion
 
+        #region Super Poke
         private void FacSPoke(CommandArgs args)
         {
             if (!FirstCheck(args, "spoke", new []{"<player>"}, _config.SpokeCooldown, c => c != 1))
@@ -388,6 +402,7 @@ namespace FACommands
             if (!args.Player.Group.HasPermission("facommands.nocd"))
                 _playerList[args.Player.UUID].SetCooldown("spoke", _config.SpokeCooldown);
         }
+        #endregion
 
         private void FacHug(CommandArgs args)
         {
@@ -546,6 +561,7 @@ namespace FACommands
         }
         #endregion
 
+        #region Disturb
         private void FacDisturb(CommandArgs args)
         {
             if (!FirstCheck(args, "disturb", new []{"<player>"}, _config.DisturbCooldown, c => c != 1))
@@ -560,7 +576,9 @@ namespace FACommands
             if (!args.Player.Group.HasPermission("facommands.nocd"))
                 _playerList[args.Player.UUID].SetCooldown("disturb", _config.DisturbCooldown);
         }
+        #endregion
 
+        #region User Info
         private void FacUI(CommandArgs args)
         {
             if (args.Parameters.Count == 1 && args.Parameters[0].Length != 0)
@@ -594,8 +612,10 @@ namespace FACommands
             }
             args.Player.SendErrorMessage("Syntax: /uinfo <player>");
         }
+        #endregion
 
         #region Ban Info
+        //// Won't be needing this anymore since TShock now has detailed ban info
         //private void FacBI(CommandArgs args)
         //{
         //    if (args.Parameters.Count == 0)
@@ -618,6 +638,7 @@ namespace FACommands
         //}
         #endregion
 
+        #region Find Player
         private bool FindPlayer(string param, TSPlayer issuer, out TSPlayer player)
         {
             player = null;
@@ -633,6 +654,7 @@ namespace FACommands
             player = players[0];
             return true;
         }
+        #endregion
 
         private bool FirstCheck(CommandArgs args, string commandName, string[] arguments, int cooldown, Func<int, bool> expr)
         {
@@ -649,6 +671,7 @@ namespace FACommands
             return false;
         }
 
+        #region Reload
         private void Reload(CommandArgs args)
         {
             try
@@ -667,7 +690,7 @@ namespace FACommands
             }
             args.Player.SendErrorMessage("Failed to reload config!");
         }
-
+        #endregion
         private class Player
         {
             public Player() => Cooldowns = new Dictionary<string, Cooldown>();
